@@ -1,0 +1,628 @@
+<!-- ======================================================================
+# Yenten Single Wallet
+# Copyright (c) 2026 wendigo75
+# This file is part of the Yenten Single Wallet project.
+# It is designed specifically to operate alongside the compiled executable. 
+# This software is provided "AS IS", without warranty of any kind.
+# For full license terms, see the LICENSE file in the root directory.
+======================================================================= -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YentenSingleWallet</title>
+    <link rel="stylesheet" href="/static/style.css">    
+    <link rel="icon" type="image/svg+xml" href="static/yenten.svg">
+	<script src="/static/bitcoinjs-lib.min.js"></script>
+</head>
+<body>
+    <div class="wallet-container">
+        <div class="home-topbar">
+            <button id="btn-lang" translate="no" title="EN">🇬🇧</button>
+            <div class="wallet-sidebar-buttons" translate="no">
+                <button id="btn-help" class="btn-sidebar-icon translate-me" title="Help" data-translate-title="Help">
+                    <img src="static/help.svg" alt="Help">
+                </button>
+                <button id="btn-info" class="btn-sidebar-icon translate-me" title="Information" data-translate-title="Information">
+                    <img src="static/info.svg.webp" alt="Info">
+                </button>
+                <button id="btn-credits" class="btn-sidebar-icon translate-me" title="Credits" data-translate-title="Credits">
+                    <img src="static/credits.svg" alt="Credits">
+                </button>
+            </div>
+        </div>
+        <div class="header-container" translate="no">
+            <div class="logo-container">
+                <img src="/static/yenten.svg" alt="Yenten Logo" class="wallet-logo">
+            </div>
+            <h1 id="title-main">Yenten<span class="highlight">SingleWallet</span></h1>
+            <p id="author">by Wendigo</p>
+            <p id="subtitle-main">Financial Privacy Client-Side</p>
+        </div>
+        <div class="buttons-layout"> 
+            <button id="btn-create" class="btn-primary translate-me hidden">CREATE WALLET</button>
+            <button id="btn-import" class="btn-primary translate-me hidden">IMPORT A WALLET</button>
+            <button id="btn-open" class="btn-primary translate-me hidden">OPEN WALLET</button>
+            <button id="btn-remove" class="btn-secondary translate-me hidden">REMOVE WALLET</button>
+        </div>
+    </div>
+    <!-- ================
+       MODALE DIALOG HELP
+    ================= -->
+    <dialog id="modal-help" class="wallet-modal">
+        <div class="modal-header">
+            <h2 class="translate-me">WALLET USAGE HELP</h2>
+            <button id="btn-close-help" class="modal-close-btn">&times;</button>
+        </div>        
+        <div class="modal-body">
+            <p class="translate-me">A quick description of the buttons on the page</p>            
+            <h4 class="translate-me">Wallet Buttons</h4>
+            <ul>
+                <li>
+				<span class="translate-me" style="color: #00a2e8; font-weight: bold;">CREATE WALLET</span> 
+                    <span class="translate-me">- Generates a new wallet locally from a BIP39 recovery phrase. No transaction is made.</span>
+                </li>
+                <li>
+                    <span class="translate-me" style="color: #00a2e8; font-weight: bold;">IMPORT A WALLET</span> 
+                    <span class="translate-me">- Derives an address from a 12-word BIP39 phrase using this project's derivation path, or imports the exact address from a Yenten WIF key. A BIP39 passphrase is optional.</span>
+                </li>            
+                <li style="margin-top: 10px;">
+                    <span class="translate-me" style="color: #00a2e8; font-weight: bold;">OPEN A WALLET</span> 
+                    <span class="translate-me">- Checks the password set during import before opening the saved wallet.</span>
+                </li>
+                <li>
+                    <span class="translate-me" style="color: #00a2e8; font-weight: bold;">REMOVE A WALLET</span> 
+                    <span class="translate-me">- Removes the saved wallet and recovery data from this app's local browser profile after confirmation.</span>
+                </li>
+                <li>
+                    <span class="translate-me" style="color: #00a2e8; font-weight: bold;">VIEW</span>
+                    <span class="translate-me">- Displays saved wallet recovery data.</span>
+                </li>
+                <li>
+                    <span class="translate-me" style="color: #00a2e8; font-weight: bold;">HISTORY</span>
+                    <span class="translate-me">- Shows confirmed and unconfirmed transactions for the currently open wallet address only.</span>
+                </li>
+            </ul>
+            <h4 class="translate-me">Interface Buttons</h4>
+            <ul>
+                <li class="translate-me">🏳‍🌈 LANGUAGE BUTTON - Toggles the interface language between native English and your computer system language.</li>
+                <li class="translate-me">❓ HELP BUTTON - Opens this popup window.</li>
+                <li class="translate-me">ℹ️ INFORMATION BUTTON - Opens the privacy and safety guidelines.</li>
+                <li class="translate-me">🤝 CREDITS BUTTON - Displays the mentions and acknowledgments for the original code repositories and authors.</li>
+            </ul>
+        </div>
+    </dialog>
+    <!-- ================
+       MODALE DIALOG INFO 
+    ================= -->
+    <dialog id="modal-info" class="wallet-modal">
+        <div class="modal-header">
+            <h2 class="translate-me">PRIVACY & SECURITY STATEMENT</h2>
+            <button id="btn-close-info" class="modal-close-btn">&times;</button>
+        </div>        
+        <div class="modal-body">
+            <h4 class="translate-me">What is a Non-Custodial Wallet?</h4>
+            <p class="translate-me">A non-custodial wallet means that you have absolute and total control over your funds and private keys. Cryptocurrency assets are never stored inside this website or on centralized servers; they reside permanently on the decentralized Yenten Coin blockchain network.</p>            
+            <h4 class="translate-me">Local Storage and Privacy</h4>
+            <p class="translate-me">Wallet secrets are encrypted with your wallet password and stored locally in this app's browser profile; they are not sent to the wallet server. The Windows app keeps this profile between launches. Phrase recovery uses the path m/44'/125'/0'/0/0. Balance and transaction history lookups send only the public address to the configured Yenten API. GitHub Pages is static hosting and needs a separate compatible API endpoint; app.py provides the endpoint for local testing only.</p>
+            <div class="modal-alert-box">
+                <span class="alert-icon">⚠️</span>
+                <div class="alert-content">
+                    <h3 class="translate-me">CRITICAL RESPONSIBILITY DISCLOSER.</h3>
+                    <p class="translate-me">Never enter a recovery phrase or private key into a website you do not trust. Keep an offline backup of the original recovery data. The app cannot recover wallet data if its local browser profile is deleted or its password is lost.</p>
+                </div>
+                <span class="alert-icon">⚠️</span>
+            </div>
+            <h4 class="translate-me">Best Crypto Practices:</h4>
+            <ul>
+                <li class="translate-me">Always write down your 12-word recovery phrase on physical paper and store it in a secure place offline.</li>
+                <li class="translate-me">Never take digital screenshots, save keys in text files on your computer, or share them on cloud services.</li>
+                <li class="translate-me">Double-check that the application is running locally or on the official secure address before introducing data.</li>
+            </ul>
+            <h4 class="translate-me">Application Version</h4>
+            <p><span translate="no">{{ APP_VERSION }}</span></p>
+        </div>
+    </dialog>
+    <!-- ===================
+       MODALE DIALOG CREDITS
+    ==================== -->
+    <dialog id="modal-credits" class="wallet-modal">
+        <div class="modal-header">
+            <h2 class="translate-me">CREDITS AND ACKNOWLEDGMENTS</h2>
+            <button id="btn-close-credits" class="modal-close-btn">&times;</button>
+        </div>        
+        <div class="modal-body">           
+            <h4 class="translate-me">Project Mentions</h4>
+            <ul>
+			<p class="translate-me"> </p>
+                <li style="margin-bottom: 12px;">
+                    <span class="translate-me" style="color: #1a2332; font-weight: bold;">Author</span>
+                    <span style="color: #657786;"> - </span>
+                    <a href="https://github.com/wendigo75" target="_blank" style="color: #00a2e8; font-weight: 600; text-decoration: none; margin-left: 5px;">Wendigo</a>
+                </li>
+				<li style="margin-bottom: 12px;">
+                    <span class="translate-me" style="color: #1a2332; font-weight: bold;">AI Coding Support #1</span>
+                    <span style="color: #657786;"> - </span>
+                    <a href="https://aistudio.google.com" target="_blank" rel="noopener noreferrer" style="color: #00a2e8; font-weight: 600; text-decoration: none; margin-left: 5px;">Gemini 1.5 Pro (v1.5-Pro-20240514)</a>
+                </li>
+                <li style="margin-bottom: 12px;">
+                    <span class="translate-me" style="color: #1a2332; font-weight: bold;">AI Coding Support #2</span>
+                    <span style="color: #657786;"> - </span>
+                    <a href="https://github.com/features/copilot" target="_blank" rel="noopener noreferrer" style="color: #00a2e8; font-weight: 600; text-decoration: none; margin-left: 5px;">GPT-6 Luna (Copilot SDK in VS Code)</a>
+                </li>
+				<li style="margin-bottom: 12px;">
+                    <span class="translate-me" style="color: #1a2332; font-weight: bold;">Crypto Homepage</span>
+                    <span style="color: #657786;"> - </span>
+                    <a href="https://yentencoin.info" target="_blank" style="color: #00a2e8; font-weight: 600; text-decoration: none; margin-left: 5px;">Yenten Homepage</a>
+                </li>
+				<li style="margin-bottom: 12px;">
+                    <span class="translate-me" style="color: #1a2332; font-weight: bold;">Crypto Sources</span>
+                    <span style="color: #657786;"> - </span>
+                    <a href="https://github.com/yentencoin" target="_blank" style="color: #00a2e8; font-weight: 600; text-decoration: none; margin-left: 5px;">Yenten Blockchain</a>
+                </li>
+                <li style="margin-bottom: 12px;">
+                    <span class="translate-me" style="color: #1a2332; font-weight: bold;">PDF watermark artwork</span>
+                    <span style="color: #657786;"> - </span>
+                    <a href="https://discord.com/users/512547680040386572" target="_blank" rel="noopener noreferrer" style="color: #00a2e8; font-weight: 600; text-decoration: none; margin-left: 5px;">Discord user @usvername</a>
+                </li>
+			</ul>            
+        </div>
+    </dialog>
+     <!-- ======================
+     MODALE DIALOG IMPORT WALLET 
+     ======================= -->
+    <dialog id="modal-import-wallet" class="wallet-modal">
+        <div class="modal-header">
+            <h2 class="translate-me">Import Wallet</h2>
+            <button id="btn-close-import" class="modal-close-btn">&times;</button>
+        </div>        
+        <div class="modal-body" style="padding: 30px 25px;">
+            <p style="text-align: center; color: #657786; font-size: 0.95rem; margin-bottom: 25px;"><span class="translate-me">Choose</span> <span translate="no">SEED</span> <span class="translate-me">or</span> <span translate="no">WIF</span> <span class="translate-me">to import. The address is derived in your browser, and the input is cleared after a successful import.</span></p>
+            <fieldset class="import-mode-fieldset">
+                <legend class="translate-me">Import format</legend>
+                <div class="import-mode-switch">
+                    <span id="import-mode-seed-label" class="import-mode-switch-label" translate="no">SEED</span>
+                    <label class="import-mode-toggle" for="import-mode-toggle">
+                        <input type="checkbox" id="import-mode-toggle" role="switch" checked aria-label="Toggle import format">
+                        <span class="import-mode-toggle-track" aria-hidden="true"></span>
+                    </label>
+                    <span id="import-mode-wif-label" class="import-mode-switch-label is-selected" translate="no">WIF</span>
+                </div>
+                <div class="import-mode-descriptions">
+                    <span class="translate-me">Recovery phrase</span>
+                    <span class="translate-me">Private key</span>
+                </div>
+            </fieldset>
+            <div style="margin-bottom: 20px;">
+                <label class="translate-me" for="import-seed-input" style="display: block; text-align: left; font-weight: 600; font-size: 0.95rem; color: #00a2e8; margin-bottom: 8px;">Recovery data</label>
+                <textarea id="import-seed-input" name="wallet-recovery-data" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Enter the selected recovery data" style="width: 100%; height: 100px; padding: 12px; border: 1px solid #cfd8dc; border-radius: 8px; font-family: inherit; font-size: 1.1rem; resize: none; outline: none; box-sizing: border-box;"></textarea>
+            </div>
+            <div id="import-bip39-passphrase-field" style="margin-bottom: 30px;">
+                <label for="import-bip39-passphrase" style="display: block; text-align: left; font-weight: 600; font-size: 0.95rem; color: #1a2332; margin-bottom: 8px;"><span translate="no">BIP39</span> <span class="translate-me">Passphrase</span> <span class="translate-me">(optional)</span></label>
+                <input type="password" id="import-bip39-passphrase" autocomplete="off" placeholder="Only if you used one with your recovery phrase" style="width: 100%; padding: 14px; border: 1px solid #cfd8dc; border-radius: 8px; font-family: inherit; font-size: 1.1rem; outline: none; box-sizing: border-box;">
+            </div>
+            <div style="margin-bottom: 30px;">
+                <label class="translate-me" for="import-wallet-password" style="display: block; text-align: left; font-weight: 600; font-size: 0.95rem; color: #1a2332; margin-bottom: 8px;">Wallet password</label>
+                <input type="password" id="import-wallet-password" name="wallet-import-encryption-password" autocomplete="off" placeholder="Choose a password for this device" style="width: 100%; padding: 14px; border: 1px solid #cfd8dc; border-radius: 8px; font-family: inherit; font-size: 1.1rem; outline: none; box-sizing: border-box;">
+            </div>
+            <div class="modal-action-layout" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                <button id="btn-submit-import" class="btn-primary translate-me" style="margin: 0; padding: 14px 24px; font-size: 1.05rem;">CONFIRM AND IMPORT</button>
+                <button id="btn-cancel-import" class="btn-secondary translate-me" style="margin: 0; padding: 14px 24px; font-weight: bold; font-size: 1.05rem;">CANCEL</button>
+            </div>
+        </div>
+    </dialog>
+    <dialog id="modal-create-wallet" class="wallet-modal">
+        <div class="modal-header">
+            <h2 class="translate-me">Create Wallet</h2>
+            <button id="btn-close-create-wallet" class="modal-close-btn" aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-body create-wallet-body">
+            <p class="translate-me">A new 12-word BIP39 recovery phrase and matching Yenten wallet will be generated locally.</p>
+            <fieldset class="import-mode-fieldset">
+                <legend class="translate-me">BIP39 passphrase (experts only)</legend>
+                <div class="import-mode-switch">
+                    <span id="create-passphrase-off-label" class="import-mode-switch-label is-selected" translate="no">OFF</span>
+                    <label class="import-mode-toggle" for="create-passphrase-toggle">
+                        <input type="checkbox" id="create-passphrase-toggle" role="switch" aria-label="BIP39 passphrase off">
+                        <span class="import-mode-toggle-track" aria-hidden="true"></span>
+                    </label>
+                    <span id="create-passphrase-on-label" class="import-mode-switch-label" translate="no">ON</span>
+                </div>
+            </fieldset>
+            <button id="btn-start-create" class="btn-primary translate-me" type="button">PROCEED TO CREATE</button>
+        </div>
+    </dialog>
+    <dialog id="modal-create-expert-warning" class="wallet-modal backup-warning-modal">
+        <div class="modal-header backup-warning-header">
+            <span class="backup-warning-triangle" aria-hidden="true">⚠️</span>
+            <h2 class="translate-me">EXPERTS ONLY</h2>
+            <span class="backup-warning-triangle" aria-hidden="true">⚠️</span>
+        </div>
+        <div class="modal-body backup-warning-body">
+            <p class="translate-me">A BIP39 passphrase creates a different wallet. You must keep both the recovery phrase and the exact passphrase. If you forget it, the recovery phrase alone cannot restore this wallet.</p>
+            <p class="translate-me backup-warning-emphasis">ONLY CONTINUE IF YOU UNDERSTAND AND CAN SAFELY BACK UP BOTH</p>
+            <button id="btn-confirm-create-expert-mode" class="btn-primary translate-me" type="button">I UNDERSTAND — ENABLE PASSPHRASE</button>
+        </div>
+    </dialog>
+    <dialog id="modal-create-credentials" class="wallet-modal">
+        <div class="modal-header">
+            <h2 class="translate-me">Set Wallet Credentials</h2>
+            <button id="btn-close-create-credentials" class="modal-close-btn" aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-body create-wallet-body">
+            <div id="create-bip39-passphrase-fields" class="create-credential-group hidden">
+                <label for="create-bip39-passphrase" class="translate-me">BIP39 passphrase</label>
+                <input id="create-bip39-passphrase" type="password" autocomplete="off" placeholder="Enter BIP39 passphrase">
+                <label for="create-bip39-passphrase-confirm" class="translate-me">Re-enter BIP39 passphrase</label>
+                <input id="create-bip39-passphrase-confirm" type="password" autocomplete="off" placeholder="Re-enter BIP39 passphrase">
+            </div>
+            <div class="create-credential-group">
+                <label for="create-wallet-password" class="translate-me">Wallet password</label>
+                <input id="create-wallet-password" name="wallet-create-encryption-password" type="password" autocomplete="off" placeholder="Enter wallet password">
+                <label for="create-wallet-password-confirm" class="translate-me">Re-enter wallet password</label>
+                <input id="create-wallet-password-confirm" name="wallet-create-encryption-password-confirm" type="password" autocomplete="off" placeholder="Re-enter wallet password">
+            </div>
+            <button id="btn-submit-create" class="btn-primary translate-me" type="button">PROCEED TO CREATE</button>
+        </div>
+    </dialog>
+    <dialog id="modal-settings" class="wallet-modal">
+        <div class="modal-header">
+            <h2 class="translate-me">Wallet View</h2>
+            <button id="btn-close-settings" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body settings-body">
+            <dl class="wallet-settings-list">
+                <dt class="translate-me">Wallet address</dt>
+                <dd><span id="settings-wallet-address"></span><button class="settings-copy-button" type="button" data-copy-target="settings-wallet-address" title="Copy value" data-translate-title="Copy value" aria-label="Copy value">📋</button></dd>
+                <dt class="translate-me">Import type</dt>
+                <dd id="settings-import-type"></dd>
+                <dt class="translate-me">Public key</dt>
+                <dd><span id="settings-public-key"></span><button class="settings-copy-button" type="button" data-copy-target="settings-public-key" title="Copy value" data-translate-title="Copy value" aria-label="Copy value">📋</button></dd>
+                <dt class="translate-me">Private key (hex)</dt>
+                <dd><span id="settings-private-key"></span><button class="settings-copy-button" type="button" data-copy-target="settings-private-key" title="Copy value" data-translate-title="Copy value" aria-label="Copy value">📋</button></dd>
+                <dt class="translate-me">WIF</dt>
+                <dd><span id="settings-wif"></span><button class="settings-copy-button" type="button" data-copy-target="settings-wif" title="Copy value" data-translate-title="Copy value" aria-label="Copy value">📋</button></dd>
+                <dt class="translate-me">Recovery phrase (SEED)</dt>
+                <dd><span id="settings-seed"></span><button class="settings-copy-button" type="button" data-copy-target="settings-seed" title="Copy value" data-translate-title="Copy value" aria-label="Copy value">📋</button></dd>
+                <dt class="translate-me">BIP39 passphrase</dt>
+                <dd><span id="settings-bip39-passphrase"></span><button class="settings-copy-button" type="button" data-copy-target="settings-bip39-passphrase" title="Copy value" data-translate-title="Copy value" aria-label="Copy value">📋</button></dd>
+            </dl>
+            <button id="btn-export-backup" class="btn-primary translate-me" type="button">EXPORT BACKUP</button>
+        </div>
+    </dialog>
+    <dialog id="modal-backup-warning" class="wallet-modal backup-warning-modal">
+        <div class="modal-header backup-warning-header">
+            <span class="backup-warning-triangle" aria-hidden="true">⚠️</span>
+            <h2 class="translate-me">SECURITY WARNING</h2>
+            <span class="backup-warning-triangle" aria-hidden="true">⚠️</span>
+        </div>
+        <div class="modal-body backup-warning-body">
+            <p class="translate-me">The backup contains your recovery phrase and private keys. Anyone who obtains it can control your wallet.</p>
+            <p class="translate-me backup-warning-emphasis">DO NOT SHARE WITH ANYONE - KEEP IN A SAFE PLACE</p>
+            <fieldset class="backup-format-fieldset">
+                <legend class="translate-me">Backup format</legend>
+                <div class="import-mode-switch">
+                    <span id="backup-format-txt-label" class="import-mode-switch-label is-selected" translate="no">TXT</span>
+                    <label class="import-mode-toggle" for="backup-format-toggle">
+                        <input type="checkbox" id="backup-format-toggle" role="switch" aria-label="TXT backup format selected">
+                        <span class="import-mode-toggle-track" aria-hidden="true"></span>
+                    </label>
+                    <span id="backup-format-pdf-label" class="import-mode-switch-label" translate="no">PDF</span>
+                </div>
+            </fieldset>
+            <button id="btn-proceed-export-backup" class="btn-primary translate-me" type="button">PROCEED AND EXPORT</button>
+        </div>
+    </dialog>
+    <dialog id="modal-backup-pdf-preview" class="wallet-modal backup-pdf-modal">
+        <div class="modal-header">
+            <h2 class="translate-me">PDF Backup Preview</h2>
+            <button id="btn-close-backup-pdf-preview" class="modal-close-btn" aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-body backup-pdf-preview-body">
+            <iframe id="backup-pdf-preview-frame" title="Yenten wallet backup PDF preview"></iframe>
+            <div class="backup-pdf-preview-actions">
+                <button id="btn-download-backup-pdf" class="btn-primary translate-me" type="button">SAVE PDF TO DEVICE</button>
+                <button id="btn-print-backup-pdf" class="btn-secondary translate-me" type="button">PRINT PDF</button>
+                <button id="btn-close-backup-pdf-preview-footer" class="btn-secondary translate-me" type="button">CLOSE PREVIEW</button>
+            </div>
+        </div>
+    </dialog>
+    <!-- ================================
+       MODALE DASHBOARD DEL WALLET APERTO 
+    ================================= -->
+    <dialog id="modal-wallet-core" class="wallet-modal">
+        <header class="wallet-core-header">
+            <div class="wallet-core-brand">
+                <svg class="wallet-core-brand-logo" viewBox="0 0 100 100" role="img" aria-label="Yenten wallet">
+                    <path d="M15 25C15 22 17 20 20 20h60c3 0 5 2 5 5v50c0 3-2 5-5 5H20c-3 0-5-2-5-5z" fill="#f7f9fa" stroke="#cfd8dc" stroke-width="4"/>
+                    <path d="M70 42h15c2 0 3 1 3 3v10c0 2-1 3-3 3H70z" fill="#f7f9fa" stroke="#cfd8dc" stroke-width="4"/>
+                    <circle cx="79" cy="50" r="4" fill="#00a2e8"/>
+                    <image href="/static/yenten-mark.svg" x="25" y="29" width="42" height="42" preserveAspectRatio="xMidYMid meet"/>
+                </svg>
+                <span>YentenSingleWallet</span>
+                <span id="wallet-network-status" class="wallet-online-indicator is-checking" aria-live="polite">
+                    <span aria-hidden="true"></span>
+                    <span id="wallet-network-checking" class="translate-me">Checking...</span>
+                    <span id="wallet-network-online" class="translate-me hidden">Online</span>
+                    <span id="wallet-network-offline" class="translate-me hidden">Offline</span>
+                    <span id="wallet-block-height"></span>
+                </span>
+            </div>
+            <div class="wallet-core-header-actions">
+                <button id="btn-wallet-lang" class="wallet-language-button" title="EN" aria-label="Change language"></button>
+                <button id="btn-wallet-help" class="wallet-help-button" title="Help" data-translate-title="Help" aria-label="Help">
+                    <img src="/static/help.svg" alt="">
+                </button>
+                <button id="btn-wallet-view" class="wallet-view-button" title="View wallet data" data-translate-title="View wallet data" aria-label="View wallet data">
+                    <span aria-hidden="true">👁</span>
+                </button>
+            </div>
+        </header>
+        <div class="wallet-core-body">
+            <section class="wallet-address-panel">
+                <label for="wallet-address-display" class="translate-me">Public receiving address</label>
+                <div class="wallet-address-row">
+                    <div id="wallet-address-display" aria-live="polite"></div>
+                    <button id="btn-copy-address" class="wallet-copy-button" title="Copy address" aria-label="Copy address">📋</button>
+                </div>
+            </section>
+            <div class="wallet-overview">
+                <section class="wallet-balance-card">
+                    <div class="wallet-section-label translate-me">Total balance</div>
+                    <div class="wallet-balance-row">
+                        <div class="wallet-balance-amount">
+                            <span id="wallet-balance-value">--</span>
+                            <span class="wallet-balance-currency">YTN</span>
+                        </div>
+                        <button id="btn-copy-balance" class="wallet-copy-button" title="Copy balance" aria-label="Copy balance" disabled>📋</button>
+                    </div>
+                    <p id="wallet-balance-status" class="translate-me balance-status" aria-live="polite">Balance not loaded</p>
+                </section>
+                <section class="wallet-qr-card">
+                    <h2 class="wallet-section-label translate-me">Scan to receive Yenten</h2>
+                    <div id="wallet-qrcode" aria-label="Yenten receiving address QR code"></div>
+                    <button id="btn-copy-qr" class="wallet-copy-button wallet-copy-qr translate-me" title="Copy QR image" aria-label="Copy QR image" disabled>📋 COPY QR IMAGE</button>
+                </section>
+            </div>
+            <div class="wallet-core-actions">
+                <button id="btn-wallet-send" class="btn-primary" type="button"><span class="wallet-core-action-icon" aria-hidden="true">💸</span> <span class="translate-me">SEND PAY</span></button>
+                <button id="btn-wallet-history" class="btn-primary"><span class="wallet-core-action-icon" aria-hidden="true">🧾</span> <span class="translate-me">HISTORY</span></button>
+                <button id="btn-wallet-sign" class="btn-primary"><span class="wallet-core-action-icon" aria-hidden="true">✍️</span> <span class="translate-me">CREATE SIGNATURE</span></button>
+                <button id="btn-wallet-exit" class="btn-secondary wallet-exit-button">
+                    <svg class="wallet-exit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M13 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8"></path>
+                        <path d="M9 12h12m-4-4 4 4-4 4"></path>
+                    </svg>
+                    <span class="translate-me">EXIT</span>
+                </button>
+            </div>
+        </div>
+    </dialog>
+    <dialog id="modal-wallet-send" class="wallet-modal wallet-send-modal">
+        <div class="modal-header">
+            <h2 class="translate-me">SEND YTN</h2>
+            <button id="btn-close-wallet-send" class="modal-close-btn" aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-body">
+            {% if not YTN_LIVE_SEND_ENABLED|default(false) %}
+            <p class="wallet-send-test-note translate-me">{% if YTN_LOCAL_SEND_SIMULATION|default(false) %}LOCAL TEST ONLY: the button builds and signs a transaction in this browser, then discards it. It never broadcasts or moves funds.{% else %}TRANSACTION SENDING IS DISABLED. Start app.py for the real-send test, or app2.py for local simulation.{% endif %}</p>
+            {% endif %}
+            <form id="wallet-send-form" novalidate>
+                <label class="wallet-signature-label translate-me" for="wallet-send-recipient">Recipient address</label>
+                <input id="wallet-send-recipient" class="wallet-signature-input" type="text" inputmode="text" autocomplete="off">
+                <p id="wallet-send-qr-lock-note" class="wallet-send-qr-lock-note hidden translate-me">Address verified from QR. It is locked to prevent accidental edits.</p>
+                <button id="btn-unlock-wallet-send-recipient" class="btn-secondary translate-me hidden" type="button">CHANGE ADDRESS</button>
+                <div class="wallet-send-qr-actions">
+                    <button id="btn-scan-wallet-send-qr" class="btn-secondary translate-me" type="button">SCAN WITH CAMERA</button>
+                    <button id="btn-paste-wallet-send-qr" class="btn-secondary translate-me" type="button">PASTE QR IMAGE</button>
+                    <label class="btn-secondary wallet-send-file-label translate-me" for="wallet-send-qr-file">LOAD QR IMAGE</label>
+                    <input id="wallet-send-qr-file" class="hidden" type="file" accept="image/*">
+                </div>
+                <video id="wallet-send-qr-video" class="wallet-send-qr-video hidden" playsinline muted></video>
+                <p id="wallet-send-qr-status" class="wallet-send-qr-status" aria-live="polite"></p>
+
+                <label class="wallet-signature-label translate-me" for="wallet-send-amount">Amount to send (YTN)</label>
+                <input id="wallet-send-amount" class="wallet-signature-input" type="number" min="0.00000001" step="0.00000001" inputmode="decimal" placeholder="0.00000000">
+
+                <label class="wallet-signature-label translate-me" for="wallet-send-fee">Network fee (YTN)</label>
+                <input id="wallet-send-fee" class="wallet-signature-input" type="number" min="0.00000001" step="0.00000001" inputmode="decimal" value="0.0001">
+                <div class="wallet-send-balance-row">
+                    <span class="translate-me">Available to spend</span>
+                    <strong><span id="wallet-send-available-balance">--</span> YTN</strong>
+                </div>
+                <p id="wallet-send-balance-status" class="wallet-send-balance-status" aria-live="polite"></p>
+                {% if YTN_LIVE_SEND_ENABLED|default(false) %}
+                <div class="wallet-send-proceed-warning">
+                    <p class="translate-me">Before proceeding, verify that the destination wallet is correct. If you scanned a QR code, check the full address shown in the next step too.</p>
+                    <button id="btn-confirm-wallet-send" class="btn-primary translate-me" type="button">PROCEED</button>
+                </div>
+                {% else %}
+                <div class="wallet-send-actions">
+                    <button id="btn-confirm-wallet-send" class="btn-primary translate-me" type="button">SIMULATE SEND</button>
+                </div>
+                {% endif %}
+            </form>
+            <div class="wallet-send-footer">
+                <button id="btn-close-wallet-send-footer" class="btn-secondary translate-me" type="button">CLOSE</button>
+            </div>
+        </div>
+    </dialog>
+    <dialog id="modal-wallet-qr-confirm" class="wallet-modal wallet-qr-confirm-modal">
+        <div class="modal-header">
+            <h2 class="translate-me">VERIFY RECIPIENT ADDRESS</h2>
+        </div>
+        <div class="modal-body">
+            <p class="wallet-send-test-note translate-me">Check the address carefully against the recipient before using it. A valid QR code can still contain the wrong address.</p>
+            <p id="wallet-send-qr-candidate" class="wallet-send-qr-candidate"></p>
+            <div class="wallet-send-actions">
+                <button id="btn-confirm-wallet-send-recipient" class="btn-primary translate-me" type="button">I VERIFIED THIS ADDRESS</button>
+                <button id="btn-cancel-wallet-send-recipient" class="btn-secondary translate-me" type="button">CANCEL</button>
+            </div>
+        </div>
+    </dialog>
+    <dialog id="modal-wallet-send-confirm" class="wallet-modal wallet-send-confirm-modal">
+        <div class="modal-header">
+            <h2 class="translate-me">FINAL MAINNET CONFIRMATION</h2>
+        </div>
+        <div class="modal-body">
+            <dl class="wallet-send-result-summary">
+                <div>
+                    <dt class="translate-me">From</dt>
+                    <dd id="wallet-send-confirm-sender"></dd>
+                </div>
+                <div>
+                    <dt class="translate-me">Recipient</dt>
+                    <dd id="wallet-send-confirm-recipient"></dd>
+                </div>
+                <div>
+                    <dt class="translate-me">Amount received</dt>
+                    <dd id="wallet-send-confirm-amount"></dd>
+                </div>
+                <div>
+                    <dt class="translate-me">Network fee</dt>
+                    <dd id="wallet-send-confirm-fee"></dd>
+                </div>
+                <div>
+                    <dt class="translate-me">Total wallet debit</dt>
+                    <dd id="wallet-send-confirm-total"></dd>
+                </div>
+            </dl>
+            <div class="wallet-send-live-warning">
+                <p class="translate-me">This is a real, irreversible Yenten mainnet payment. Verify the complete destination address and amounts above before continuing. A low fee may be rejected; if the result is uncertain, check the transaction history before trying again.</p>
+                <p id="wallet-send-confirm-status" class="wallet-send-confirm-status" role="status" aria-live="polite"></p>
+                <button id="btn-broadcast-wallet-send" class="btn-primary translate-me" type="button" disabled>BROADCAST REAL PAYMENT</button>
+            </div>
+            <div class="wallet-send-actions">
+                <button id="btn-cancel-wallet-send-confirm" class="btn-secondary translate-me" type="button">CANCEL</button>
+            </div>
+        </div>
+    </dialog>
+    <dialog id="modal-wallet-send-result" class="wallet-modal wallet-send-result-modal">
+        <div class="modal-header">
+            <h2 class="translate-me">{% if YTN_LIVE_SEND_ENABLED|default(false) %}TRANSACTION RESULT{% else %}LOCAL TRANSACTION TEST{% endif %}</h2>
+            <button id="btn-close-wallet-send-result" class="modal-close-btn" aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="wallet-send-result-status" class="wallet-send-test-note" role="status"></p>
+            <dl id="wallet-send-result-summary" class="wallet-send-result-summary"></dl>
+            <ol id="wallet-send-result-steps" class="wallet-send-result-steps"></ol>
+            <p class="wallet-send-result-safety translate-me">{% if YTN_LIVE_SEND_ENABLED|default(false) %}The transaction ID is evidence of the node's response, not confirmation. Check the transaction status before trying again. The signed transaction was not saved or displayed.{% else %}No transaction was broadcast. The locally signed transaction and its private signing data are not displayed and are discarded after this test.{% endif %}</p>
+            <button id="btn-close-wallet-send-result-footer" class="btn-secondary translate-me" type="button">CLOSE</button>
+        </div>
+    </dialog>
+    <dialog id="modal-wallet-unlock" class="wallet-modal wallet-unlock-modal">
+        <div class="modal-header">
+            <h2 class="translate-me">OPEN WALLET</h2>
+        </div>
+        <div class="modal-body">
+            <label class="wallet-signature-label translate-me" for="wallet-unlock-password">Wallet password</label>
+            <input id="wallet-unlock-password" class="wallet-signature-input" type="password" autocomplete="current-password">
+            <p id="wallet-unlock-status" class="wallet-signature-status" role="status" aria-live="polite"></p>
+            <div class="wallet-unlock-actions">
+                <button id="btn-unlock-wallet" class="btn-primary translate-me" type="button">UNLOCK WALLET</button>
+                <button id="btn-cancel-wallet-unlock" class="btn-secondary translate-me" type="button">CANCEL</button>
+            </div>
+        </div>
+    </dialog>
+    <dialog id="modal-wallet-alert" class="wallet-modal wallet-unlock-modal">
+        <div class="modal-body">
+            <p id="wallet-alert-message" aria-live="assertive"></p>
+            <button id="btn-close-wallet-alert" class="btn-primary translate-me" type="button">CLOSE</button>
+        </div>
+    </dialog>
+    <dialog id="modal-wallet-help" class="wallet-modal wallet-help-modal">
+        <div class="modal-header">
+            <h2 class="translate-me">WALLET SCREEN HELP</h2>
+            <button id="btn-close-wallet-help" class="modal-close-btn" aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <ul class="wallet-help-list">
+                <li><span class="wallet-help-icon" aria-hidden="true">📋</span><strong class="translate-me">ADDRESS</strong><span class="translate-me"> — Copy your receiving address.</span></li>
+                <li><span class="wallet-help-icon" aria-hidden="true">📋</span><strong class="translate-me">BALANCE</strong><span class="translate-me"> — Shows and copies your YTN balance.</span></li>
+                <li><span class="wallet-help-icon" aria-hidden="true">📋</span><strong class="translate-me">QR CODE</strong><span class="translate-me"> — Share it to receive YTN, or copy the QR image.</span></li>
+                <li><span class="wallet-help-icon" aria-hidden="true">👁</span><strong class="translate-me">VIEW</strong><span class="translate-me"> — Displays wallet recovery data. Keep it private.</span></li>
+                <li><span class="wallet-help-icon" aria-hidden="true">💸</span><strong class="translate-me">SEND</strong><span class="translate-me">{% if YTN_LIVE_SEND_ENABLED|default(false) %} — Sends the entered amount to the verified destination after a final confirmation.{% else %} — Test: checks available balance only. No transaction is sent.{% endif %}</span></li>
+                <li><span class="wallet-help-icon" aria-hidden="true">🧾</span><strong class="translate-me">HISTORY</strong><span class="translate-me"> — Shows confirmed and pending transactions.</span></li>
+                <li>
+                    <span class="wallet-help-icon" aria-hidden="true">✍️</span>
+                    <strong class="translate-me">SIGNATURE</strong>
+                    <span><span class="translate-me"> — Creates a local message signature for an Explorer address claim. Message must exactly match the Explorer Display Name.</span> <a class="translate-me" href="https://explorer.yentencoin.info/claim" target="_blank" rel="noopener noreferrer">Open Explorer claim</a>.</span>
+                </li>
+                <li><span class="wallet-help-icon wallet-help-status-icon" aria-hidden="true"></span><strong class="translate-me">STATUS</strong><span class="translate-me"> — Shows the latest block returned by the Yenten API.</span></li>
+                <li><img id="wallet-help-language-icon" class="wallet-help-icon wallet-help-flag" src="https://flagcdn.com/24x18/gb.png" alt="" aria-hidden="true"><strong class="translate-me">LANGUAGE</strong><span class="translate-me"> — Switches between English and your system language.</span></li>
+                <li>
+                    <svg class="wallet-help-icon wallet-exit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M13 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8"></path>
+                        <path d="M9 12h12m-4-4 4 4-4 4"></path>
+                    </svg>
+                    <strong class="translate-me">EXIT</strong><span class="translate-me"> — Closes the wallet screen.</span>
+                </li>
+            </ul>
+        </div>
+    </dialog>
+    <dialog id="modal-wallet-signature" class="wallet-modal wallet-signature-modal">
+        <div class="modal-header">
+            <h2 class="translate-me">SIGN MESSAGE</h2>
+            <button id="btn-close-wallet-signature" class="modal-close-btn" aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <label class="wallet-signature-label translate-me" for="wallet-sign-message">Message</label>
+            <input id="wallet-sign-message" class="wallet-signature-input" type="text" maxlength="50" autocomplete="off">
+            <button id="btn-create-message-signature" class="btn-primary translate-me" type="button">CREATE SIGNATURE</button>
+
+            <label class="wallet-signature-label translate-me" for="wallet-signature-value">Signature</label>
+            <div class="wallet-signature-output-row">
+                <textarea id="wallet-signature-value" class="wallet-signature-input" rows="3" readonly></textarea>
+                <button id="btn-copy-message-signature" class="wallet-copy-button" type="button" title="Copy signature" aria-label="Copy signature" disabled>📋</button>
+            </div>
+            <p class="wallet-signature-status" aria-live="polite"></p>
+
+            <div class="wallet-signature-info" role="note">
+                <svg class="wallet-signature-info-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"></circle>
+                    <path d="M12 11v5m0-8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                </svg>
+                <p class="translate-me">This signature is not your private key and cannot spend funds. Use it in the Explorer claim with Message exactly matching the Explorer Display Name. Leave Message blank only to remove an existing claim name.</p>
+            </div>
+            <a class="wallet-signature-explorer-link translate-me" href="https://explorer.yentencoin.info/claim" target="_blank" rel="noopener noreferrer">Open Explorer claim</a>
+        </div>
+    </dialog>
+    <dialog id="modal-wallet-history" class="wallet-modal wallet-history-modal">
+        <div class="modal-header">
+            <h2 class="translate-me">TRANSACTION HISTORY</h2>
+            <button id="btn-close-history" class="modal-close-btn" aria-label="Close">&times;</button>
+        </div>
+        <div class="wallet-history-body">
+            <p class="wallet-history-refresh-note translate-me">Confirmation counts refresh every 30 seconds while this screen is open.</p>
+            <section class="wallet-history-section">
+                <h3 class="translate-me">Unconfirmed transactions</h3>
+                <p id="wallet-pending-status" class="wallet-history-status translate-me" aria-live="polite">Loading unconfirmed transactions...</p>
+                <ol id="wallet-pending-list" class="wallet-history-list"></ol>
+            </section>
+
+            <section class="wallet-history-section">
+                <h3 class="translate-me">Confirmed transactions</h3>
+                <p id="wallet-history-status" class="wallet-history-status translate-me" aria-live="polite">Loading transaction history...</p>
+                <ol id="wallet-history-list" class="wallet-history-list"></ol>
+                <button id="btn-history-more" class="btn-secondary translate-me hidden" type="button" disabled>LOAD MORE</button>
+            </section>
+        </div>
+    </dialog>
+    <script>
+        window.YTN_BALANCE_API_URL = '/api/balance';
+        window.YTN_UNSPENT_API_URL = '/api/unspent';
+        window.YTN_STATUS_API_URL = '/api/status';
+        window.YTN_HISTORY_API_URL = '/api/history';
+        window.YTN_MEMPOOL_HISTORY_API_URL = '/api/history/mempool';
+        window.YTN_LOCAL_SEND_SIMULATION = {{ YTN_LOCAL_SEND_SIMULATION|default(false)|tojson }};
+        window.YTN_LIVE_SEND_ENABLED = {{ YTN_LIVE_SEND_ENABLED|default(false)|tojson }};
+        window.YTN_CSRF_TOKEN = {{ YTN_CSRF_TOKEN|default('')|tojson }};
+    </script>
+    <script src="/static/qrcode.min.js"></script>
+    <script src="/static/jsQR.min.js"></script>
+    <script src="/static/jspdf.umd.min.js"></script>
+    <script src="/static/script.js"></script>
+</body>
+</html>
