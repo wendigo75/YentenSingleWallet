@@ -25,7 +25,7 @@ from version import APP_VERSION
 
 app = Flask(__name__, template_folder='template', static_folder='static')
 app.config['MAX_CONTENT_LENGTH'] = 300_000
-app.config['YTN_LIVE_SEND_ENABLED'] = False
+app.config['YTN_LIVE_SEND_ENABLED'] = True
 BROADCAST_CSRF_TOKEN = secrets.token_urlsafe(32)
 YENTEN_BROADCAST_URL = 'https://api.yentencoin.info/broadcast'
 class YentenAPIError(Exception):
@@ -409,16 +409,14 @@ def wallet_mempool_history():
     )
     
 if __name__ == '__main__':
-    app.config['YTN_LIVE_SEND_ENABLED'] = True
     logging.getLogger('werkzeug').setLevel(logging.ERROR)
     server = make_server('127.0.0.1', 5000, app, threaded=True)
-    print('Yenten Web Wallet')
+    print('Yenten Single Wallet')
     print('Open this address in your browser: http://127.0.0.1:5000')
-    print('Live transaction broadcasts are enabled after final confirmation.')
     print('Press Ctrl+C to stop the server.')
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print('\nYenten Web Wallet stopped.')
+        print('\nYenten Single Wallet stopped.')
     finally:
         server.server_close()
