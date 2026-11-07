@@ -18,6 +18,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import multiprocessing
 import urllib.error
 import urllib.request
 import webbrowser
@@ -338,6 +339,8 @@ def run_browser_app():
     server.serve_forever()
     return 0
 def main():
+    if sys.platform == 'win32':
+        multiprocessing.freeze_support()
     if len(sys.argv) == 4 and sys.argv[1] == SERVER_ARGUMENT:
         try:
             run_server(int(sys.argv[2]), sys.argv[3])
