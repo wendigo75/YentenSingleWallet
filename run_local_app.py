@@ -105,7 +105,8 @@ class BackupFileApi:
 class JobObject:
     def __init__(self, process_id):
         if sys.platform != 'win32':
-            raise RuntimeError('The desktop WebView build is currently Windows-only.')
+            self.handle = None
+            return
         self.kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
         self.kernel32.CreateJobObjectW.restype = ctypes.c_void_p
         self.kernel32.OpenProcess.argtypes = [
@@ -169,12 +170,20 @@ def choose_local_port():
             ) from error
         return LOCAL_SERVER_PORT
 def webview_storage_path():
-    local_app_data = os.environ.get('LOCALAPPDATA')
-    if local_app_data:
-        storage_root = Path(local_app_data)
+    if sys.platform == 'win32':
+        local_app_data = os.environ.get('LOCALAPPDATA')
+        if local_app_data:
+            storage_root = Path(local_app_data)
+        else:
+            storage_root = Path.home() / 'AppData' / 'Local'
+        storage_path = storage_root / 'YentenSingleWallet' / 'WebView2'
     else:
-        storage_root = Path.home() / 'AppData' / 'Local'
-    storage_path = storage_root / 'YentenSingleWallet' / 'WebView2'
+        xdg_data_home = os.environ.get('XDG_DATA_HOME')
+        if xdg_data_home:
+            storage_root = Path(xdg_data_home)
+        else:
+            storage_root = Path.home() / '.local' / 'share'
+        storage_path = storage_root / 'YentenSingleWallet'
     storage_path.mkdir(parents=True, exist_ok=True)
     return str(storage_path)
 def start_server_process(port):
@@ -277,6 +286,22 @@ def show_startup_error(message):
         )
     else:
         print(message, file=sys.stderr)
+def set_linux_window_icon():
+    if sys.platform == 'win32':
+        return
+    try:
+        import gi
+        gi.require_version('Gtk', '3.0')
+        from gi.repository import Gtk
+        if getattr(sys, 'frozen', False):
+            base_path = Path(sys._MEIPASS)
+        else:
+            base_path = Path(__file__).resolve().parent
+        icon_path = base_path / 'static' / 'app_icon.svg'
+        if icon_path.exists():
+            Gtk.Window.set_default_icon_from_file(str(icon_path))
+    except Exception as error:
+        logging.debug(f'Could not set Linux window icon: {error}')
 def run_desktop_app():
     try:
         import webview
@@ -306,12 +331,15 @@ def run_desktop_app():
             js_api=backup_file_api,
         )
         backup_file_api._window = window
-        webview.start(
-            gui='edgechromium',
-            debug=False,
-            private_mode=False,
-            storage_path=webview_storage_path(),
-        )
+        start_kwargs = {
+            'debug': False,
+            'private_mode': False,
+            'storage_path': webview_storage_path(),
+        }
+        if sys.platform == 'win32':
+            start_kwargs['gui'] = 'edgechromium'
+        set_linux_window_icon()
+        webview.start(**start_kwargs)
         return 0
     except Exception as error:
         show_startup_error('Could not start the desktop wallet.\n\n' + str(error))
@@ -347,8 +375,6 @@ def main():
         except (OSError, ValueError):
             return 1
         return 0
-    if sys.platform != 'win32':
-        return run_browser_app()
     return run_desktop_app()
 if __name__ == '__main__':
     raise SystemExit(main())

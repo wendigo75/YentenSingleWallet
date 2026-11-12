@@ -1,0 +1,3 @@
+-r requirements.txt
+pywebview==5.4
+PyInstaller==6.19.0
