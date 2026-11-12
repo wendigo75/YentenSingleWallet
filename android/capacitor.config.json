@@ -1,0 +1,11 @@
+{
+  "appId": "com.wendigo75.yentensinglewallet",
+  "appName": "YentenSingleWallet",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}
