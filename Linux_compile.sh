@@ -8,7 +8,7 @@ set -e
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE}")" && pwd)"
 APP_NAME="YentenSingleWallet"
-ICON_PATH="$PROJECT_ROOT/static/app_icon.svg"
+ICON_PATH="$PROJECT_ROOT/static/images/wallet.svg"
 RELEASE_DIR="$PROJECT_ROOT/release_package"
 PACKAGE_NAME="YentenSingleWallet-Linux-x86_64"
 TARGET_DIR="$RELEASE_DIR/$PACKAGE_NAME"
@@ -44,7 +44,7 @@ pyinstaller \
     --collect-all webview \
     --add-data "$PROJECT_ROOT/static:static" \
     --add-data "$PROJECT_ROOT/template:template" \
-    --add-data "$PROJECT_ROOT/static/app_icon.svg:." \
+    --add-data "$PROJECT_ROOT/static/images/wallet.svg:." \
     "$PROJECT_ROOT/run_local_app.py"
 
 echo "=== 4. Creazione pacchetto di distribuzione per Linux ==="
@@ -53,7 +53,7 @@ mkdir -p "$TARGET_DIR"
 
 # Copia il binario, l'icona, licenza e README
 cp "$PROJECT_ROOT/$APP_NAME" "$TARGET_DIR/"
-cp "$ICON_PATH" "$TARGET_DIR/app_icon.svg"
+cp "$ICON_PATH" "$TARGET_DIR/wallet.svg"
 if [ -f "$PROJECT_ROOT/README.md" ]; then
     cp "$PROJECT_ROOT/README.md" "$TARGET_DIR/"
 fi
@@ -69,7 +69,7 @@ Type=Application
 Name=Yenten Single Wallet
 Comment=A secure, lightweight standalone single wallet for Yenten coin (YTN)
 Exec=./$APP_NAME
-Icon=./app_icon.svg
+Icon=./wallet.svg
 Terminal=false
 Categories=Office;Finance;Crypto;
 StartupWMClass=$APP_NAME
@@ -89,7 +89,7 @@ mkdir -p "\$APPS_DIR"
 mkdir -p "\$ICONS_DIR"
 
 cp "$APP_NAME" "\$INSTALL_DIR/"
-cp "app_icon.svg" "\$ICONS_DIR/yenten-wallet.svg"
+cp "wallet.svg" "\$ICONS_DIR/yenten-wallet.svg"
 
 cat <<DESKTOP > "\$APPS_DIR/yentensinglewallet.desktop"
 [Desktop Entry]

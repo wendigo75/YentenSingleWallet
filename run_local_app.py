@@ -297,7 +297,7 @@ def set_linux_window_icon():
             base_path = Path(sys._MEIPASS)
         else:
             base_path = Path(__file__).resolve().parent
-        icon_path = base_path / 'static' / 'app_icon.svg'
+        icon_path = base_path / 'static' / 'images' / 'wallet.svg'
         if icon_path.exists():
             Gtk.Window.set_default_icon_from_file(str(icon_path))
     except Exception as error:
