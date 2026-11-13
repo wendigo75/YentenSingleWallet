@@ -11,10 +11,18 @@ A secure, lightweight, and completely standalone cross-platform single wallet fo
 ## 🛠️ How to Build from Source
 
 ### 🪟 Windows (`.exe`)
-If you want to audit the source code and compile the standalone Windows executable yourself, open PowerShell in the project root directory and run the automated build script:
+If you want to audit the source code and compile the standalone Windows executable yourself, in the project root directory run the automated build script:
+
+**Powershell**
 ```powershell
 .\build_windows.ps1
 ```
+
+**Command Prompt (CMD)**
+```powershell
+powershell -ExecutionPolicy Bypass -File .\build_windows.ps1
+```
+
 *The automated script parses version strings from `version.py`, generates dynamic Windows file metadata, compiles a multi-resolution embedded icon (`.ico`), and bundles all assets using PyInstaller.*
 
 ### 🐧 Linux (`x86_64`)
