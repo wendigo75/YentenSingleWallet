@@ -30,7 +30,7 @@ New-Item -ItemType Directory -Path $buildRoot | Out-Null
 try {
     Add-Type -AssemblyName System.Drawing
     $sourceIcon = [System.Drawing.Image]::FromFile(
-        (Join-Path $projectRoot 'static\images\yenten.png')
+        (Join-Path $projectRoot 'static\images\wallet.png')
     )
     $iconEntries = New-Object 'System.Collections.Generic.List[object]'
     try {
