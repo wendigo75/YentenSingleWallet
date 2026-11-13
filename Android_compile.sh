@@ -51,14 +51,14 @@ fi
 npx cap sync android
 RES_DIR="$ANDROID_DIR/android/app/src/main/res"
 for DENSITY in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
-    if [ -f "$PROJECT_ROOT/static/ic_launcher_${DENSITY}.png" ] && [ -d "$RES_DIR/mipmap-${DENSITY}" ]; then
-        cp "$PROJECT_ROOT/static/ic_launcher_${DENSITY}.png" "$RES_DIR/mipmap-${DENSITY}/ic_launcher.png"
-        cp "$PROJECT_ROOT/static/ic_launcher_${DENSITY}.png" "$RES_DIR/mipmap-${DENSITY}/ic_launcher_round.png"
+    if [ -f "$PROJECT_ROOT/static/images/ic_launcher_${DENSITY}.png" ] && [ -d "$RES_DIR/mipmap-${DENSITY}" ]; then
+        cp "$PROJECT_ROOT/static/images/ic_launcher_${DENSITY}.png" "$RES_DIR/mipmap-${DENSITY}/ic_launcher.png"
+        cp "$PROJECT_ROOT/static/images/ic_launcher_${DENSITY}.png" "$RES_DIR/mipmap-${DENSITY}/ic_launcher_round.png"
     fi
 done
-if [ -f "$PROJECT_ROOT/static/ic_launcher_foreground.png" ] && [ -d "$RES_DIR/mipmap-xxxhdpi" ]; then
+if [ -f "$PROJECT_ROOT/static/images/ic_launcher_foreground.png" ] && [ -d "$RES_DIR/mipmap-xxxhdpi" ]; then
     for DENSITY in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
-        cp "$PROJECT_ROOT/static/ic_launcher_foreground.png" "$RES_DIR/mipmap-${DENSITY}/ic_launcher_foreground.png"
+        cp "$PROJECT_ROOT/static/images/ic_launcher_foreground.png" "$RES_DIR/mipmap-${DENSITY}/ic_launcher_foreground.png"
     done
 fi
 if [ -f "$RES_DIR/values/ic_launcher_background.xml" ]; then
