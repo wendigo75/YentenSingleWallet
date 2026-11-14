@@ -34,11 +34,20 @@ chmod +x Linux_compile.sh
 *This script compiles the standalone executable via PyInstaller and packages it together with `install.sh`, `app_icon.svg`, and the `.desktop` launcher into `YentenSingleWallet-Linux-x86_64.tar.gz`.*
 
 ### 📱 Android (`.apk`)
-To build the standalone Android APK from source on Linux, make sure you have **Node.js / npm**, **Java JDK (17 or 21)**, and the **Android SDK** (`platform-tools`, `platforms;android-34`, `build-tools;34.0.0`) installed, then open your terminal in the project root directory and run:
+To build the standalone Android APK from source on Linux or Windows, make sure you have **Node.js / npm**, **Java JDK (17 or 21)**, and the **Android SDK** (`platform-tools`, `platforms;android-34`, `build-tools;34.0.0`) installed, then open your terminal in the project root directory and run:
+
+**Linux**
 ```bash
 chmod +x Android_compile.sh
 ./Android_compile.sh
 ```
+
+**Windows**
+
+| PowerShell | Command Prompt (CMD) |
+| :--- | :--- |
+| `.\android_compile.ps1` | `powershell -ExecutionPolicy Bypass -File .\android_compile.ps1` |
+
 *This script synchronizes the web assets and custom icons into `android/`, initializes Capacitor, and compiles the installable APK into `android/release_apk/`.*
 
 ## 🛡️ Authenticity & Anti-Malware Verification
