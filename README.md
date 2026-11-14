@@ -43,10 +43,24 @@ chmod +x Android_compile.sh
 ```
 
 **Windows**
-
-| PowerShell | Command Prompt (CMD) |
-| :--- | :--- |
-| ```Poweshell .\android_compile.ps1``` | ```CMD powershell -ExecutionPolicy Bypass -File .\android_compile.ps1``` |
+<table>
+<tr>
+<th align="left">PowerShell</th>
+<th align="left">Command Prompt (CMD)</th>
+</tr>
+<tr>
+<td>
+<pre lang="powershell">
+.\android_compile.ps1
+</pre>
+</td>
+<td>
+<pre lang="cmd">
+powershell -ExecutionPolicy Bypass -File .\android_compile.ps1
+</pre>
+</td>
+</tr>
+</table>
 
 *This script synchronizes the web assets and custom icons into `android/`, initializes Capacitor, and compiles the installable APK into `android/release_apk/`.*
 
