@@ -19,7 +19,7 @@ If you want to audit the source code and compile the standalone Windows executab
 ```
 
 **Command Prompt (CMD)**
-```powershell
+```CMD
 powershell -ExecutionPolicy Bypass -File .\build_windows.ps1
 ```
 
@@ -46,7 +46,7 @@ chmod +x Android_compile.sh
 
 | PowerShell | Command Prompt (CMD) |
 | :--- | :--- |
-| `.\android_compile.ps1` | `powershell -ExecutionPolicy Bypass -File .\android_compile.ps1` |
+| ```Poweshell .\android_compile.ps1``` | ```CMD powershell -ExecutionPolicy Bypass -File .\android_compile.ps1``` |
 
 *This script synchronizes the web assets and custom icons into `android/`, initializes Capacitor, and compiles the installable APK into `android/release_apk/`.*
 
