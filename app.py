@@ -1,5 +1,5 @@
 # ==========================================================================
-# Yenten Single Wallet - macOS Flask Backend
+# Yenten Single Wallet - Flask Backend
 # Copyright (c) 2026 wendigo75
 #
 # This file is part of the Yenten Single Wallet project.
@@ -15,41 +15,30 @@ import json
 import logging
 import re
 import secrets
-import sys
 from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
-from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 from flask import Flask, jsonify, render_template, request
 from werkzeug.serving import make_server
-PROJECT_ROOT = Path(__file__).resolve().parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
 from version import APP_VERSION
-if getattr(sys, 'frozen', False):
-    BASE_DIR = Path(sys._MEIPASS)
-else:
-    BASE_DIR = PROJECT_ROOT
-app = Flask(
-    __name__,
-    template_folder=str(BASE_DIR / 'template'),
-    static_folder=str(BASE_DIR / 'static'),
-)
+
+app = Flask(__name__, template_folder='template', static_folder='static')
 app.config['MAX_CONTENT_LENGTH'] = 300_000
 app.config['YTN_LIVE_SEND_ENABLED'] = True
 BROADCAST_CSRF_TOKEN = secrets.token_urlsafe(32)
 YENTEN_BROADCAST_URL = 'https://api.yentencoin.info/broadcast'
 class YentenAPIError(Exception):
     pass
+
 @app.context_processor
 def inject_wallet_send_config():
     return {
         'YTN_LIVE_SEND_ENABLED': app.config['YTN_LIVE_SEND_ENABLED'],
         'YTN_CSRF_TOKEN': BROADCAST_CSRF_TOKEN,
         'APP_VERSION': APP_VERSION,
-        }
+    }
 def fetch_yenten_result(path, timeout=10):
     api_url = 'https://api.yentencoin.info/' + path
     upstream_request = Request(
@@ -57,9 +46,9 @@ def fetch_yenten_result(path, timeout=10):
         headers={
             'Accept': 'application/json',
             'User-Agent': (
-                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
-                'AppleWebKit/605.1.15 (KHTML, like Gecko) '
-                'Version/17.0 Safari/605.1.15'
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                'AppleWebKit/537.36 (KHTML, like Gecko) '
+                'Chrome/131.0.0.0 Safari/537.36'
             ),
         },
     )
@@ -73,6 +62,7 @@ def fetch_yenten_result(path, timeout=10):
         raise YentenAPIError(f'Could not reach Yenten API: {reason}') from error
     except (UnicodeDecodeError, json.JSONDecodeError) as error:
         raise YentenAPIError('Yenten API returned invalid JSON.') from error
+
     if not isinstance(api_response, dict) or 'result' not in api_response:
         raise YentenAPIError('Yenten API returned an invalid response.')
     if api_response.get('error') is not None:
@@ -134,9 +124,11 @@ def _normalize_transaction(txid, address, pending=False):
         'confirmations': confirmations,
         'pending': pending,
     }
+
 @app.route('/')
 def home():
     return render_template('index.html')
+
 @app.get('/api/balance')
 def wallet_balance():
     address = request.args.get('address', '')
@@ -152,9 +144,9 @@ def wallet_balance():
             headers={
                 'Accept': 'application/json',
                 'User-Agent': (
-                    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
-                    'AppleWebKit/605.1.15 (KHTML, like Gecko) '
-                    'Version/17.0 Safari/605.1.15'
+                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                    'AppleWebKit/537.36 (KHTML, like Gecko) '
+                    'Chrome/131.0.0.0 Safari/537.36'
                 ),
             },
         )
@@ -166,6 +158,7 @@ def wallet_balance():
         return jsonify(error=f'Could not reach Yenten balance API: {error.reason if isinstance(error, URLError) else error}'), 502
     except (UnicodeDecodeError, json.JSONDecodeError):
         return jsonify(error='Yenten balance API returned an invalid response.'), 502
+
     if not isinstance(api_response, dict):
         return jsonify(error='Yenten balance API returned an invalid response.'), 502
     result = api_response.get('result')
@@ -179,6 +172,7 @@ def wallet_balance():
         return jsonify(error='Yenten balance API returned an invalid balance.'), 502
     balance = Decimal(balance_satoshis) / Decimal(100_000_000)
     return jsonify(address=address, balance=format(balance, 'f'))
+
 @app.get('/api/unspent')
 def wallet_unspent_outputs():
     address = request.args.get('address', '')
@@ -192,7 +186,7 @@ def wallet_unspent_outputs():
         total_satoshis = 0
         for output in outputs:
             if not isinstance(output, dict):
-                raise YentenAPIError('Yenten API returned invalid unspent output.')
+                raise YentenAPIError('Yenten API returned an invalid unspent output.')
             txid = output.get('txid')
             output_index = output.get('index')
             script = output.get('script')
@@ -230,6 +224,7 @@ def wallet_unspent_outputs():
         total_satoshis=str(total_satoshis),
         outputs=normalized_outputs,
     )
+
 @app.post('/api/broadcast')
 def broadcast_wallet_transaction():
     if not app.config['YTN_LIVE_SEND_ENABLED']:
@@ -318,6 +313,7 @@ def broadcast_wallet_transaction():
             outcome_uncertain=True,
         ), 502
     return jsonify(transaction_id=transaction_id.lower())
+
 @app.get('/api/status')
 def wallet_network_status():
     try:
@@ -328,6 +324,7 @@ def wallet_network_status():
     if isinstance(block_height, bool) or not isinstance(block_height, int) or block_height < 0:
         return jsonify(error='Yenten API returned an invalid block height.'), 502
     return jsonify(block_height=block_height)
+
 @app.get('/api/history')
 def wallet_history():
     address = request.args.get('address', '')
@@ -339,6 +336,7 @@ def wallet_history():
     offset = int(offset_text)
     if offset % 10 != 0:
         return jsonify(error='Offset must be a multiple of 10.'), 400
+
     try:
         history = fetch_yenten_result(
             'history/' + quote(address, safe='') + '?offset=' + str(offset)
@@ -368,6 +366,7 @@ def wallet_history():
         txcount=txcount,
         transactions=transactions,
     )
+
 @app.get('/api/history/mempool')
 def wallet_mempool_history():
     address = request.args.get('address', '')
@@ -409,6 +408,7 @@ def wallet_mempool_history():
         txcount=txcount,
         transactions=transactions,
     )
+    
 if __name__ == '__main__':
     logging.getLogger('werkzeug').setLevel(logging.ERROR)
     server = make_server('127.0.0.1', 5000, app, threaded=True)
