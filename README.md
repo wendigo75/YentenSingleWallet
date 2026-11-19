@@ -33,6 +33,16 @@ chmod +x Linux_compile.sh
 ```
 *This script compiles the standalone executable via PyInstaller and packages it together with `install.sh`, `app_icon.svg`, and the `.desktop` launcher into `YentenSingleWallet-Linux-x86_64.tar.gz`.*
 
+### 🍎 macOS (`.app` / Apple Silicon & Intel)
+To build the standalone macOS application bundle (`.app`) and `.zip` release archive from source, open Terminal in the project root directory and run:
+```bash
+chmod +x MAC_compile.sh
+./MAC_compile.sh
+```
+*This script automatically checks/installs Xcode Command Line Tools, Homebrew, and Python dependencies, compiles the standalone `YentenSingleWallet.app` bundle via PyInstaller, applies an ad-hoc signature (`codesign`), and creates `YentenSingleWallet-v<version>-macOS-<arch>.zip`.*
+
+*(Note: Since the compiled app is ad-hoc signed, on first launch macOS Gatekeeper may require you to **Right-Click -> Open** on `YentenSingleWallet.app`, or allow it in **System Settings -> Privacy & Security**.)*
+
 ### 📱 Android (`.apk`)
 To build the standalone Android APK from source on Linux or Windows, make sure you have **Node.js / npm**, **Java JDK (17 or 21)**, and the **Android SDK** (`platform-tools`, `platforms;android-34`, `build-tools;34.0.0`) installed, then open your terminal in the project root directory and run:
 
